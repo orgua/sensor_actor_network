@@ -2,8 +2,8 @@
 
 using namespace std;
 
-#include "messages.h"
-#include "ApplicationLayer.h"
+#include "src/messages.h"
+#include "src/layer_application.h"
 
 int main()
 {

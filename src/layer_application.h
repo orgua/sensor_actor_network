@@ -1,21 +1,21 @@
-#ifndef APPLICATIONLAYER_H
-#define APPLICATIONLAYER_H
+#ifndef SENSOR_ACTOR_NETWORK_LAYER_APPLICATION_H
+#define SENSOR_ACTOR_NETWORK_LAYER_APPLICATION_H
 
 
 /// todo: build a special virtual layer-class that ensures pointers for layers.
 // http://www.eventhelix.com/RealtimeMantra/PatternCatalog/protocol_stack.htm#.VfyA_rMabQp
 
-class ApplicationLayer
+class layer_application
 {
     public:
         /** Default constructor */
-        ApplicationLayer();
+        layer_application();
         /** Default destructor */
-        virtual ~ApplicationLayer();
+        virtual ~layer_application();
 
 
     protected:
     private:
 };
 
-#endif // APPLICATIONLAYER_H
+#endif // SENSOR_ACTOR_NETWORK_LAYER_APPLICATION_H

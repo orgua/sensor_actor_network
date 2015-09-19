@@ -22,8 +22,8 @@ enum class Command : uint8_t    // underlying type
     registerNode,   // get new ID and integrate new node into network,
     unregister,     // node has to reannounce
     //subscribe,      // same es register? tbd. maybe specialize
-    shutdown,      // send to sleep for a specific time (µC + RF)
-    //suspend,         // send to sleep for a specific time (µC) --> needed?
+    shutdown,      // send to sleep for a specific time (ï¿½C + RF)
+    //suspend,         // send to sleep for a specific time (ï¿½C) --> needed?
 
     ping,           // to each node, possible to trigger a tree-search
     sendRawData,
@@ -62,20 +62,17 @@ struct RegisterNodeHeader
     uint8_t     newID;
     uint16_t    updateInterval_s; // for Sensors, if 0 ... use default
     //uint8_t     hasToBe;
-
 };
 
 struct Unregister
 {
     bool        shutdown   : 1;
     bool        reregister : 1;
-
 };
 
 struct Shutdown
 {
     uint8_t     time_sec;
-
 };
 
 struct Ping
@@ -133,8 +130,13 @@ enum class Devices : std::uint8_t
     battery_current_mA,
     battery_current_uA,
 
+    rssi_dBm,
+
     time_unix_sec,
     time_unix_ms,
+
+    adc_8b,
+    adc_16b,
 
     acceleration_mg_x,
     acceleration_mg_y,
@@ -180,7 +182,7 @@ enum class Devices : std::uint8_t
 
     light_switch,
     motor_switch,
-
+    motor_pwm,
 
     undefined_generic = 192 //49152,
 
