@@ -10,9 +10,10 @@ struct Control // bitfield
     bool isRequest : 1;
     bool reserved  : 1;  // has tbd
 };
-#if (sizeof(Control) != 1)
-#error BITFIELD is larger than 1 Byte
-#endif
+//constexpr uint8_t Control_size = sizeof(Control);
+//#if (sizeof(Control) != 1)
+//#error "BITFIELD is larger than 1 Byte"
+//#endif
 
 // these commands have all a defined payload structure
 enum class Command : uint8_t    // underlying type
@@ -21,15 +22,15 @@ enum class Command : uint8_t    // underlying type
     registerNode,   // get new ID and integrate new node into network,
     unregister,     // node has to reannounce
     //subscribe,      // same es register? tbd. maybe specialize
-    shutdown      // send to sleep for a specific time (µC + RF)
-    //suspend         // send to sleep for a specific time (µC) --> needed?
+    shutdown,      // send to sleep for a specific time (µC + RF)
+    //suspend,         // send to sleep for a specific time (µC) --> needed?
 
     ping,           // to each node, possible to trigger a tree-search
     sendRawData,
     sendSensor,
     sendTrigger,
     sendActor,      // normally to Node
-    // sendUndefined
+    // sendUndefined,
     sendTime        // prefer as broadcast, so every node can sync
 };
 
@@ -41,69 +42,85 @@ struct Message
     Control   control;
     Command   command;
     uint8_t   pLength;
-    uint8_t   payload[PAYLOAD_MAX];
-    uint8_t   checksumH;
+    uint8_t   payload[PAYLOAD_MAX]; // TODO: should this contain a pointer to the payload instead?
+    uint8_t   checksumH; // TODO: maybe reinterpret as uint16
 	uint8_t   checksumL;
 };
-constexpr uint8_t   sizeMessageHeader = sizeof(Message) - PAYLOAD_MAX;
+constexpr uint8_t   MessageHeaderSize = sizeof(Message) - PAYLOAD_MAX;
 
 struct AnnounceHeader
 {
     uint8_t lengthSensorList;   // has to follow after the header
     uint8_t lengthTriggerList;  // same
     uint8_t lengthActorList;    // same
-
+    // TODO: should this contain pointers to the Lists?
 };
-constexpr size_t  size_AnnounceHeader = sizeof(AnnounceHeader);
+constexpr size_t  AnnounceHeaderSize = sizeof(AnnounceHeader);
 
 struct RegisterNodeHeader
 {
     uint8_t     newID;
     uint16_t    updateInterval_s; // for Sensors, if 0 ... use default
-    uint8_t
+    //uint8_t     hasToBe;
 
 };
 
 struct Unregister
 {
+    bool        shutdown   : 1;
+    bool        reregister : 1;
 
 };
 
 struct Shutdown
 {
+    uint8_t     time_sec;
 
 };
 
 struct Ping
 {
-
+    uint8_t     senderID;
+    uint8_t     receiverID;
+    uint8_t     originatorID;    // who started this
+    uint8_t     roundtrip_ms;
+    uint8_t     magicNumber;     // to prevent endless loop, the one who did get this number before does not have to answer
+    bool        spanTree    : 1; // receiver sends own ping
+    bool        spanNetwork : 1;
 };
 
 struct SendRawData
 {
-
+    // something to declare here?
 };
 
 struct SendSensor
 {
-
+    uint16_t    included;   // bitfield
 };
 
 struct SendTrigger
 {
-
+    uint16_t    included;
 };
 
 struct SendActor
 {
-
+    uint16_t    included;
 };
 
 struct SendTime
 {
-
+    uint32_t unixtime_sec;
+    uint32_t unixtime_ms;
 };
 
+/// Devices are divided into groups:
+//   sensors,
+//   triggers
+//   actors
+//   undefined
+// --> every sensor needs it's own definition-struct. should contain datatype, update-rate, unit,
 
 enum class Devices : std::uint8_t
 {
@@ -167,50 +184,4 @@ enum class Devices : std::uint8_t
 
     undefined_generic = 192 //49152,
 
-} ;
-
-
-/*
-    bmp280_pressure,
-    bmp280_altitude,
-    bmp280_temperature,
-
-    l3g_dps_x,
-    l3g_dps_y,
-    l3g_dps_z,
-    l3g_temperature,
-
-    lps331_pressure,
-    lps331_altitude,
-    lps331_temperature,
-
-    mag3110_uT_x,
-    mag3110_uT_y,
-    mag3110_uT_z,
-    mag3110_temperature,
-
-    max44009_lux_value,
-    max44009_lux_exp,
-
-    mma8451_mg_x,
-    /// usw
-
-    mpl3115a2_pressure,
-    mpl3115a2_altitude,
-    mpl3115a2_temperature,
-
-    mpu9250_mg_x,
-    /// usw.
-    mpu9250_dps_x,
-    /// usw.
-    ak8963_uT_x,
-    /// usw.
-
-    si7021_rhumudity,
-    si7021_temperature,
-
-    tcs3772_intensity_clear,
-    tcs3772_intensity_red,
-    tcs3772_intensity_green,
-    tcs3772_intensity_blue,
-*/
+};
