@@ -6,6 +6,7 @@
 #ifndef SENSOR_ACTOR_NETWORK_LAYER_SESSION_H
 #define SENSOR_ACTOR_NETWORK_LAYER_SESSION_H
 
+#include <stdint.h>
 #include "layer_interface.h"
 
 enum class Command : uint8_t    // underlying type
@@ -14,8 +15,8 @@ enum class Command : uint8_t    // underlying type
     registerNode,   // get new ID and integrate new node into network,
     unregister,     // node has to reannounce
     //subscribe,      // same es register? tbd. maybe specialize
-            shutdown,      // send to sleep for a specific time (�C + RF)
-    //suspend,         // send to sleep for a specific time (�C) --> needed?
+            shutdown,       // send to sleep for a specific time (uC + RF)
+    //suspend,        // send to sleep for a specific time (uC) --> needed?
 
     ping,           // to each node, possible to trigger a tree-search
     sendRawData,
@@ -23,21 +24,27 @@ enum class Command : uint8_t    // underlying type
     sendTrigger,
     sendActor,      // normally to Node
     // sendUndefined,
-            sendTime        // prefer as broadcast, so every node can sync
+    sendTime        // prefer as broadcast, so every node can sync
 };
 
-struct header_session
+typedef union
 {
-    Command   command;
-    uint8_t   pLength;
-    //uint8_t   payload[PAYLOAD_MAX]; // TODO: should this contain a pointer to the payload instead?
-};
+    uint8_t value[3];
+
+    struct
+    {
+        Command command;
+        uint8_t pLength;
+        //uint8_t   payload[PAYLOAD_MAX]; // TODO: should this contain a pointer to the payload instead?
+    } form;
+
+} header_session;
 
 class layer_session : public layer_interface
 {
     void handle_receive(stack_message *msg)
     {
-        if (DEBUG)  cout << "rSession ";
+        if (DEBUG) cout << "rSession ";
         // handle header and payload
         if (!is_top) p_upper_layer->handle_receive(msg);
         // handle tail
@@ -45,7 +52,7 @@ class layer_session : public layer_interface
 
     void handle_transmit(stack_message *msg)
     {
-        if (DEBUG)  cout << "tSession ";
+        if (DEBUG) cout << "tSession ";
         // handle header and payload
         msg->payload[msg->position++] = 1;
         msg->size++;
