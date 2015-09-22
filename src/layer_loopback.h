@@ -22,12 +22,15 @@ class layer_loopback : public layer_interface
     void handle_transmit(stack_message *msg)
     {
         if (DEBUG)  cout << "tLoopback ";
+        msg->position = 0;
         // handle header and payload
-        msg->payload[msg->position++] = 1;
-        msg->size++;
+        msg->payload[msg->position] = 1;
+        msg->size = ++msg->position;
         if (!is_top) p_upper_layer->handle_transmit(msg);
         // handle tail
         if (DEBUG)  cout << endl;
+
+        msg->position = 0;
         Stack.handle_receive(msg);
     };
 

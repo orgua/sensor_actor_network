@@ -9,18 +9,28 @@
 
 #include "layer_interface.h"
 
-struct tailer_datalink
+typedef union
 {
-uint8_t   checksumH; // TODO: maybe reinterpret as uint16
-uint8_t   checksumL;
-};
+    uint16_t value;
+    struct
+    {
+        uint8_t   checksumH; // TODO: maybe reinterpret as uint16
+        uint8_t   checksumL;
+    } form;
+} tailer_datalink;
+
 
 class layer_datalink : public layer_interface
 {
+public:
+
     void handle_receive(stack_message *msg)
     {
         if (DEBUG)  cout << "rDatalink ";
-        // handle header and payload
+        // Check CRC of Message
+
+
+
         if (!is_top) p_upper_layer->handle_receive(msg);
         // handle tail
     }
@@ -29,8 +39,8 @@ class layer_datalink : public layer_interface
     {
         if (DEBUG)  cout << "tDatalink ";
         // handle header and payload
-        msg->payload[msg->position++] = 1;
-        msg->size++;
+        msg->payload[msg->position] = 1;
+        msg->size = ++msg->position;
         if (!is_top) p_upper_layer->handle_transmit(msg);
         // handle tail
     };

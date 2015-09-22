@@ -6,37 +6,42 @@
 #ifndef SENSOR_ACTOR_NETWORK_LAYER_NETWORK_H
 #define SENSOR_ACTOR_NETWORK_LAYER_NETWORK_H
 
+#include <stdint.h>
 #include "layer_interface.h"
 
 typedef union
 {
+    uint8_t value;
+
     struct // bitfield
     {
-        bool wantsAck  : 1;
-        bool isAck     : 1;
-        bool isRequest : 1;
-        bool reserved  : 1;  // has tbd
-    } bit;
-
-    uint8_t value;
+        bool    wantsAck  : 1;
+        bool    isAck     : 1;
+        uint8_t msg_ID    : 6; // max 63 (0x3F)
+    } form;
 } Control;
-
-//constexpr uint8_t Control_size = sizeof(Control);
-//#if (sizeof(Control) != 1)
-//#error "BITFIELD is larger than 1 Byte"
-//#endif
 
 class layer_network : public layer_interface
 {
+private:
+    uint8_t  last_ID_received, last_ID_transmitted;
+    uint8_t  mutex_ID; // ID of Packet that wants an ACK
+    uint32_t mutex_time_ms;
+    static constexpr uint32_t retry_ms = 1000; // TODO: make settable
+
 public:
 
     Control control; // is public, so readable from outside
 
     layer_network()
     {
-        control.bit.wantsAck    = 0;
-        control.bit.isAck       = 0;
-        control.bit.isRequest   = 0;
+        control.form.wantsAck    = 0;
+        control.form.isAck       = 0;
+        control.form.msg_ID      = 0;
+        last_ID_received         = 255;
+        last_ID_transmitted      = 255;
+        mutex_ID                 = 255;
+        mutex_time_ms            = 0;
     };
 
     void handle_receive(stack_message *msg) // TODO: handle wantsACk --> send ACK, isACk --> don't send package again
@@ -44,10 +49,11 @@ public:
         if (DEBUG) cout << "rNetwork ";
         // handle header and payload
         control.value = msg->payload[msg->position];
-        msg->size = ++msg->position;
+        ++msg->position;
         // next layer
         if (!is_top) p_upper_layer->handle_receive(msg);
         // handle tail
+        last_ID_received = control.form.msg_ID;
     };
 
     void handle_transmit(stack_message *msg)
@@ -59,13 +65,13 @@ public:
         // next layer
         if (!is_top) p_upper_layer->handle_transmit(msg);
         // handle tail
+        last_ID_transmitted = ++(control.form.msg_ID);
     };
 
-    void set_control(const uint8_t wantsAck = 0, const uint8_t isAck = 0, const uint8_t isRequest = 1)
+    void set_control(const uint8_t wantsAck = 0, const uint8_t isAck = 0)
     {
-        control.bit.wantsAck    = wantsAck;
-        control.bit.isAck       = isAck;
-        control.bit.isRequest   = isRequest;
+        control.form.wantsAck    = wantsAck;
+        control.form.isAck       = isAck;
     };
 
 };

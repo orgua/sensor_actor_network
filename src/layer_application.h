@@ -8,6 +8,29 @@
 #include <stdint-gcc.h>
 #include "layer_interface.h"
 
+enum class application_command : uint8_t
+{
+    announce,       // send my _Devices
+    subscribe,      // same es register? tbd. maybe specialize
+
+    sendRawData,
+    sendSensor,
+    sendTrigger,
+    sendActor,      // normally to Node
+    sendUndefined,
+    sendTime,        // prefer as broadcast, so every node can sync
+    sendInfo,
+    sendPingData
+};
+
+struct AnnounceHeader
+{
+    uint8_t lengthSensorList;   // has to follow after the header
+    uint8_t lengthTriggerList;  // same
+    uint8_t lengthActorList;    // same
+};
+//constexpr size_t  AnnounceHeaderSize = sizeof(AnnounceHeader);
+
 class layer_application : public layer_interface
 {
     void handle_receive(stack_message *msg)
@@ -22,8 +45,8 @@ class layer_application : public layer_interface
     {
         if (DEBUG) cout << "tApplication ";
         // handle header and payload
-        msg->payload[msg->position++] = 1;
-        msg->size++;
+        msg->payload[msg->position] = 1;
+        msg->size = ++msg->position;
         if (!is_top) p_upper_layer->handle_transmit(msg);
         // handle tail
     };
@@ -32,45 +55,6 @@ class layer_application : public layer_interface
 
 layer_application layerApplication;
 
-// TODO: maybe parts of it should go to session-layer
-
-struct AnnounceHeader
-{
-    uint8_t lengthSensorList;   // has to follow after the header
-    uint8_t lengthTriggerList;  // same
-    uint8_t lengthActorList;    // same
-    // TODO: should this contain pointers to the Lists?
-};
-//constexpr size_t  AnnounceHeaderSize = sizeof(AnnounceHeader);
-
-struct RegisterNodeHeader
-{
-    uint8_t newID;
-    uint16_t updateInterval_s; // for Sensors, if 0 ... use default
-    //uint8_t     hasToBe;
-};
-
-struct Unregister
-{
-    bool shutdown   : 1;
-    bool reregister : 1;
-};
-
-struct Shutdown
-{
-    uint8_t time_sec;
-};
-
-struct Ping
-{
-    uint8_t senderID;
-    uint8_t receiverID;
-    uint8_t originatorID;    // who started this
-    uint8_t roundtrip_ms;
-    uint8_t magicNumber;     // to prevent endless loop, the one who did get this number before does not have to answer
-    bool spanTree    : 1; // receiver sends own ping
-    bool spanNetwork : 1;
-};
 
 struct SendRawData
 {

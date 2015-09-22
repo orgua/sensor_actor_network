@@ -5,6 +5,8 @@
 #ifndef SENSOR_ACTOR_NETWORK_STACK_MANAGEMENT_H
 #define SENSOR_ACTOR_NETWORK_STACK_MANAGEMENT_H
 
+constexpr uint8_t DEBUG = 1;
+
 #include <stdint-gcc.h>
 #include "stack_message.h"
 #include "layer_interface.h"

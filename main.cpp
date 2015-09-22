@@ -1,15 +1,14 @@
-
+//
+// Created by hans on 19.09.2015.
+//
+// test-environment
 
 #include <iostream>
 #include <stdint.h>
 
-constexpr uint8_t DEBUG = 1;
-
 using namespace std;
 
-#include "src/layer_interface.h"
 #include "src/stack_management.h"
-
 #include "src/layer_loopback.h"
 #include "src/layer_datalink.h"     // add CRC
 #include "src/layer_network.h"      // add control-flow (ack, req, ...)
@@ -29,6 +28,9 @@ int main()
 
     msg.size = 1;
     Stack.handle_transmit(&msg);
+
+    print_message(&msg);
+
     int * pInt;
     pInt =  reinterpret_cast<int*>(&msg); // dereference with *pInt
 
