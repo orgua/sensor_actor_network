@@ -11,6 +11,7 @@
 
 enum class session_command : uint8_t    // underlying type
 {
+    empty,          // nothing to do
     announce,       // new node tells what it got
     registerNode,   // get new ID and integrate new node into network,
 
@@ -102,6 +103,11 @@ public:
         msg->size = ++msg->position;
         if (!is_top) p_upper_layer->handle_transmit(msg);
         // handle tail
+    };
+
+    void poll(stack_message *msg)
+    {
+
     };
 
     session_status get_status(void)

@@ -64,7 +64,9 @@ public:
 //         if (!is_top) p_upper_layer->handle_transmit(msg);
 //         handle tail
 //    };
+    // TODO: we need something like: maintenance or poll to care for undone tasks
 
+    virtual void poll(stack_message *msg) = 0;
 };
 
 #endif //SENSOR_ACTOR_NETWORK_LAYER_INTERFACE_H

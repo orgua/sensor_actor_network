@@ -28,10 +28,14 @@ class layer_loopback : public layer_interface
         msg->size = ++msg->position;
         if (!is_top) p_upper_layer->handle_transmit(msg);
         // handle tail
-        if (DEBUG)  cout << endl;
 
         msg->position = 0;
-        Stack.handle_receive(msg);
+        Stack.set_received_message();
+    };
+
+    void poll(stack_message *msg)
+    {
+
     };
 
 };

@@ -45,6 +45,11 @@ public:
         // handle tail
     };
 
+    void poll(stack_message *msg)
+    {
+
+    };
+
 };
 
 layer_datalink layerDatalink;

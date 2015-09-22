@@ -20,7 +20,7 @@ int main()
 {
     stack_message msg;
 
-    Stack.add_layer(&layerLoopback);
+    Stack.add_layer(&layerLoopback); // TODO: switch to reference instead of pointer?
     Stack.add_layer(&layerDatalink);
     Stack.add_layer(&layerNetwork);
     Stack.add_layer(&layerSession);
@@ -28,6 +28,7 @@ int main()
 
     msg.size = 1;
     Stack.handle_transmit(&msg);
+    Stack.poll(&msg);
 
     print_message(&msg);
 

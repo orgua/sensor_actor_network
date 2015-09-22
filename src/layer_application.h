@@ -51,6 +51,11 @@ class layer_application : public layer_interface
         // handle tail
     };
 
+    void poll(stack_message *msg)
+    {
+
+    };
+
 };
 
 layer_application layerApplication;
