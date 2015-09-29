@@ -33,27 +33,32 @@ struct AnnounceHeader
 
 class layer_application : public layer_interface
 {
-    void handle_receive(stack_message *msg)
-    {
-        if (DEBUG) cout << "rApplication ";
-        // handle header and payload
-        if (!is_top) p_upper_layer->handle_receive(msg);
-        // handle tail
-    }
 
-    void handle_transmit(stack_message *msg)
+    void write_header(stack_message& msg)
     {
         if (DEBUG) cout << "tApplication ";
-        // handle header and payload
-        msg->payload[msg->position] = 1;
-        msg->size = ++msg->position;
-        if (!is_top) p_upper_layer->handle_transmit(msg);
-        // handle tail
+        msg.payload[msg.position] = 1;
+        msg.size = ++msg.position;
     };
 
-    void poll(stack_message *msg)
+    void write_tailer(stack_message& msg)
     {
+        // empty
+    };
 
+    void read_header(stack_message& msg)
+    {
+        if (DEBUG) cout << "rApplication ";
+    };
+
+    void read_tailer(stack_message& msg)
+    {
+        // empty
+    };
+
+    void poll(stack_message& msg)
+    {
+        // empty
     };
 
 };

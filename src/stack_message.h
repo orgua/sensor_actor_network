@@ -13,12 +13,12 @@ struct stack_message
 };
 
 
-void print_message(stack_message *msg)
+void print_message(stack_message& msg)
 {
-    cout << "Got " << static_cast<int>(msg->size) << " Byte: ";
-    for (uint8_t ivar = 0; ivar < msg->size; ++ivar)
+    cout << "Got " << static_cast<int>(msg.size) << " Byte: ";
+    for (uint8_t ivar = 0; ivar < msg.size; ++ivar)
     {
-        cout << static_cast<int>(msg->payload[ivar]) << " ";
+        cout << static_cast<int>(msg.payload[ivar]) << " ";
     };
     cout << endl;
 };

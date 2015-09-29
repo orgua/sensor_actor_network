@@ -54,9 +54,9 @@ public:
         if (++counter_layer >= max_layer) counter_layer = max_layer - 1;
     };
 
-    void handle_receive(stack_message *msg)
+    void handle_receive(stack_message& msg)
     {
-        if (DEBUG) cout << "receive: ";
+        if (DEBUG) cout << "received: ";
         p_layer[0]->handle_receive(msg);
         if (DEBUG) cout << endl;
 
@@ -68,7 +68,7 @@ public:
         received_message = 1;
     };
 
-    void handle_transmit(stack_message *msg)
+    void handle_transmit(stack_message& msg)
     {
         if (DEBUG) cout << "transmit: ";
         p_layer[0]->handle_transmit(msg);
@@ -82,7 +82,7 @@ public:
         has_to_transmit = 1;
     };
 
-    void poll(stack_message *msg)
+    void poll(stack_message& msg)
     {
         if (has_pending_operations) p_layer[0]->poll(msg);
         if (has_to_transmit)        handle_transmit(msg);

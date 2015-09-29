@@ -24,30 +24,31 @@ class layer_datalink : public layer_interface
 {
 public:
 
-    void handle_receive(stack_message *msg)
-    {
-        if (DEBUG)  cout << "rDatalink ";
-        // Check CRC of Message
-
-
-
-        if (!is_top) p_upper_layer->handle_receive(msg);
-        // handle tail
-    }
-
-    void handle_transmit(stack_message *msg)
+    void write_header(stack_message& msg)
     {
         if (DEBUG)  cout << "tDatalink ";
-        // handle header and payload
-        msg->payload[msg->position] = 1;
-        msg->size = ++msg->position;
-        if (!is_top) p_upper_layer->handle_transmit(msg);
-        // handle tail
+        msg.payload[msg.position] = 1;
+        msg.size = ++msg.position;
     };
 
-    void poll(stack_message *msg)
+    void write_tailer(stack_message& msg)
     {
+        // empty
+    };
 
+    void read_header(stack_message& msg)
+    {
+        if (DEBUG)  cout << "rDatalink ";
+    };
+
+    void read_tailer(stack_message& msg)
+    {
+        // empty
+    };
+
+    void poll(stack_message& msg)
+    {
+        // empty
     };
 
 };

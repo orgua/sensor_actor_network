@@ -87,27 +87,31 @@ public:
         status = session_status::unregistered;
     }
 
-    void handle_receive(stack_message *msg)
+    void write_header(stack_message& msg)
     {
         if (DEBUG) cout << "rSession ";
-        // handle header and payload
-        if (!is_top) p_upper_layer->handle_receive(msg);
-        // handle tail
-    }
-
-    void handle_transmit(stack_message *msg)
-    {
-        if (DEBUG) cout << "tSession ";
-        // handle header and payload
-        msg->payload[msg->position] = 1;
-        msg->size = ++msg->position;
-        if (!is_top) p_upper_layer->handle_transmit(msg);
-        // handle tail
     };
 
-    void poll(stack_message *msg)
+    void write_tailer(stack_message& msg)
     {
+        // empty
+    };
 
+    void read_header(stack_message& msg)
+    {
+        if (DEBUG) cout << "tSession ";
+        msg.payload[msg.position] = 1;
+        msg.size = ++msg.position;
+    };
+
+    void read_tailer(stack_message& msg)
+    {
+        // empty
+    };
+
+    void poll(stack_message& msg)
+    {
+        // empty
     };
 
     session_status get_status(void)

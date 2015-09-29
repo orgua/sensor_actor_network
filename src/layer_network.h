@@ -47,46 +47,47 @@ public:
         mutex_time_ms            = 0;
     };
 
-    void handle_receive(stack_message *msg) // TODO: handle wantsACk --> send ACK, isACk --> don't send package again
-    {
-        if (DEBUG) cout << "rNetwork ";
-        // handle header and payload
-        control.value = msg->payload[msg->position++];
-        last_ID_received = control.form.msg_ID;
-        if (control.form.isAck && (mutex_ID <= MAX_ID) && (mutex_ID = control.form.msg_ID))
-        {
-            mutex_ID = 255;
-            mutex_time_ms = 0;
-            Stack.clear_has_pending_operations();
-            // TODO: remove flag for pending operations
-        }
-        // next layer
-        if (!control.form.hasData) return;
-        if (!is_top) p_upper_layer->handle_receive(msg);
-        // handle tail
-    };
+    // TODO: handle wantsACk --> send ACK, isACk --> don't send package again
 
-    void handle_transmit(stack_message *msg)
+    void write_header(stack_message& msg)
     {
         if (DEBUG) cout << "tNetwork ";
-        // handle header and payload
-        msg->payload[msg->position] = control.value;
-        msg->size = ++msg->position;
+        msg.payload[msg.position] = control.value;
+        msg.size = ++msg.position;
         last_ID_transmitted = MAX_ID&(++control.form.msg_ID); // TODO: is this last_ID important in any way?
         if (control.form.wantsAck)      {
             mutex_ID = control.form.msg_ID;
             mutex_time_ms = 0; // TODO: include millis-timer
             Stack.set_has_pending_operations();
         };
-        // next layer
-        if (!is_top) p_upper_layer->handle_transmit(msg);
-
-        // TODO: compare counter and update control.form.hasData
-        // handle tail
-
     };
 
-    void poll(stack_message *msg)
+    void write_tailer(stack_message& msg)
+    {
+        // TODO: compare counter and update control.form.hasData
+    };
+
+    void read_header(stack_message& msg)
+    {
+        if (DEBUG) cout << "rNetwork ";
+        control.value = msg.payload[msg.position++];
+        last_ID_received = control.form.msg_ID;
+        if (control.form.isAck && (mutex_ID <= MAX_ID) && (mutex_ID = control.form.msg_ID))
+        {
+            mutex_ID = 255;
+            mutex_time_ms = 0;
+            Stack.clear_has_pending_operations();  // remove flag for pending operations
+        }
+        if (!control.form.hasData)  is_top = 1; // prevent next layer
+        else                        is_top = 0;
+    };
+
+    void read_tailer(stack_message& msg)
+    {
+        // empty
+    };
+
+    void poll(stack_message& msg)
     {
     // todo: if time up resend message
     };

@@ -27,10 +27,10 @@ int main()
     Stack.add_layer(&layerApplication);
 
     msg.size = 1;
-    Stack.handle_transmit(&msg);
-    Stack.poll(&msg);
+    Stack.handle_transmit(msg);
+    Stack.poll(msg);
 
-    print_message(&msg);
+    print_message(msg);
 
     int * pInt;
     pInt =  reinterpret_cast<int*>(&msg); // dereference with *pInt

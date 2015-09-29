@@ -55,18 +55,36 @@ public:
 
     uint8_t is_first_layer(void) { return is_bottom; }
 
+    // layer control
+
+    void handle_receive(stack_message& msg)
+    {
+        read_header(msg);
+        if (!is_top) p_upper_layer->handle_receive(msg);
+        read_tailer(msg);
+    };
+
+    void handle_transmit(stack_message& msg)
+    {
+        write_header(msg);
+        if (!is_top) p_upper_layer->handle_transmit(msg);
+        write_tailer(msg);
+   };
+
     // layer_specific functions --> declare your own
 
-    virtual void handle_receive(stack_message *msg)  = 0;
-    virtual void handle_transmit(stack_message *msg) = 0;
-//    {
-//        /handle header and payload
-//         if (!is_top) p_upper_layer->handle_transmit(msg);
-//         handle tail
-//    };
+    virtual void write_header(stack_message& msg) = 0;
+    virtual void write_tailer(stack_message& msg) = 0;
+    virtual void read_header(stack_message& msg) = 0;
+    virtual void read_tailer(stack_message& msg) = 0;
+
+
     // TODO: we need something like: maintenance or poll to care for undone tasks
 
-    virtual void poll(stack_message *msg) = 0;
+    // TODO: make it possible to send message directly from layer (transmit(), handle_transmit())
+    //  transmit --> if no top layer then work down, otherwise go up and call transmit
+
+    virtual void poll(stack_message& msg) = 0;
 };
 
 #endif //SENSOR_ACTOR_NETWORK_LAYER_INTERFACE_H
