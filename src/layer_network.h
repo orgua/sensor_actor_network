@@ -31,6 +31,8 @@ private:
     static constexpr uint32_t RETRY_MS = 1000; // TODO: make settable
     static constexpr uint8_t  MAX_ID   = 31;
 
+    uint8_t header_position;
+
 public:
 
     Control control; // is public, so readable from outside
@@ -45,6 +47,7 @@ public:
         last_ID_transmitted      = 255;
         mutex_ID                 = 255;
         mutex_time_ms            = 0;
+        header_position          = 0;
     };
 
     // TODO: handle wantsACk --> send ACK, isACk --> don't send package again
@@ -52,7 +55,8 @@ public:
     void write_header(stack_message& msg)
     {
         if (DEBUG) cout << "tNetwork ";
-        msg.add_payload(control.value);
+        header_position = msg.position;
+        msg.add_payload(0); // just a placeholder, set in tail-section
 
         last_ID_transmitted = MAX_ID&(++control.form.msg_ID); // TODO: is this last_ID important in any way?
         if (control.form.wantsAck)      {
@@ -64,7 +68,11 @@ public:
 
     void write_tailer(stack_message& msg)
     {
-        // TODO: compare counter and update control.form.hasData
+        // compare counter and update control.form.hasData
+        if ((msg.position - header_position) > 1)   control.form.hasData = 1;
+        else                                        control.form.hasData = 0;
+
+        msg.payload[header_position] = (control.value);
     };
 
     void read_header(stack_message& msg)
@@ -78,8 +86,8 @@ public:
             mutex_time_ms = 0;
             Stack.clear_has_pending_operations();  // remove flag for pending operations
         }
-        if (!control.form.hasData)  is_top = 1; // prevent next layer
-        else                        is_top = 0;
+        if (control.form.hasData)  go_up = ~is_top; // if not last layer, goto next
+        else                       go_up = 0;       // prevent next layer
     };
 
     void read_tailer(stack_message& msg)
@@ -92,11 +100,10 @@ public:
     // todo: if time up resend message
     };
 
-    void config(const uint8_t wantsAck = 0, const uint8_t isAck = 0, const uint8_t hasData = 1)
+    void config(const uint8_t wantsAck = 0, const uint8_t isAck = 0)
     {
         control.form.wantsAck    = wantsAck;
         control.form.isAck       = isAck;
-        control.form.hasData     = hasData;
     };
 
 };

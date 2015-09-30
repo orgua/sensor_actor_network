@@ -91,8 +91,14 @@ public:
         crc.form.checksumL = msg.read_payload_tail();
         crc.form.checksumH = msg.read_payload_tail();
 
-        if (crcCalculation(msg, header_position, (msg.size - msg.position_end)) == crc.value)   is_top = 0; // TODO: dont change if this is really the top
-        else                                    is_top = 1;
+        if (crcCalculation(msg, header_position, (msg.size - msg.position_end)) == crc.value)
+        {
+            go_up = ~is_top;
+        }
+        else
+        {
+            go_up = 0;
+        };
 
     };
 

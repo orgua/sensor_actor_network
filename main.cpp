@@ -10,9 +10,9 @@ using namespace std;
 
 #include "src/stack_management.h"
 #include "src/layer_loopback.h"
-#include "src/layer_datalink.h"     // add CRC
-#include "src/layer_network.h"      // add control-flow (ack, req, ...)
-#include "src/layer_session.h"      // adds basic commands to the message (register node, send data, ...)
+#include "src/layer_datalink.h"     // CRC
+#include "src/layer_network.h"      // control-flow (ack, req, ...)
+#include "src/layer_session.h"      // basic commands to the message (register node, send data, ...)
 #include "src/layer_application.h"  // handling of devices (sensors, actors)
 
 
@@ -27,7 +27,7 @@ int main()
     stack_message msg;
     msg.initialize();
 
-    layerNetwork.config(0,0,1);
+    layerNetwork.config(0,0);
     Stack.handle_transmit(msg);
     Stack.poll(msg);
 

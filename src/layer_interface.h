@@ -12,19 +12,27 @@ class layer_interface
 {
 protected:
     layer_interface *p_upper_layer, *p_lower_layer;
-    uint8_t is_top, is_bottom;
+    uint8_t is_top, is_bottom, go_up;
     // TODO: handle message more efficient --> static readpointer for header and tailer
 
 public:
-    layer_interface() : p_upper_layer(nullptr), p_lower_layer(nullptr), is_top(1), is_bottom(1) {};
+    layer_interface() : p_upper_layer(nullptr), p_lower_layer(nullptr), is_top(1), is_bottom(1), go_up(0) {};
     ~layer_interface() {};
 
     void set_upper_layer(layer_interface *p_layer)
     {
         p_upper_layer = p_layer;
 
-        if (p_layer != nullptr)     is_top = 0;
-        else                        is_top = 1;
+        if (p_layer != nullptr)
+        {
+            is_top  = 0;
+            go_up   = 1;
+        }
+        else
+        {
+            is_top = 1;
+            go_up  = 0;
+        };
     };
 
     layer_interface* get_upper_layer(void) { return p_upper_layer; }
@@ -43,6 +51,7 @@ public:
     {
         p_upper_layer   = nullptr;
         is_top          = 1;
+        go_up           = 0;
     };
 
     uint8_t is_last_layer(void) { return is_top; }
@@ -60,14 +69,14 @@ public:
     void handle_receive(stack_message& msg)
     {
         read_header(msg);
-        if (!is_top) p_upper_layer->handle_receive(msg);
+        if (go_up) p_upper_layer->handle_receive(msg);
         read_tailer(msg);
     };
 
     void handle_transmit(stack_message& msg)
     {
         write_header(msg);
-        if (!is_top) p_upper_layer->handle_transmit(msg);
+        if (go_up) p_upper_layer->handle_transmit(msg);
         write_tailer(msg);
    };
 
