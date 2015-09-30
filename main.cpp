@@ -18,15 +18,16 @@ using namespace std;
 
 int main()
 {
-    stack_message msg;
-
-    Stack.add_layer(&layerLoopback); // TODO: switch to reference instead of pointer?
+    Stack.add_layer(&layerLoopback);
     Stack.add_layer(&layerDatalink);
     Stack.add_layer(&layerNetwork);
     Stack.add_layer(&layerSession);
     Stack.add_layer(&layerApplication);
 
-    msg.size = 1;
+    stack_message msg;
+    msg.initialize();
+
+    layerNetwork.config(0,0,1);
     Stack.handle_transmit(msg);
     Stack.poll(msg);
 

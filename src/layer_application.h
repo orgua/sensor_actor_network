@@ -37,8 +37,7 @@ class layer_application : public layer_interface
     void write_header(stack_message& msg)
     {
         if (DEBUG) cout << "tApplication ";
-        msg.payload[msg.position] = 1;
-        msg.size = ++msg.position;
+        msg.add_payload(77);
     };
 
     void write_tailer(stack_message& msg)
@@ -49,6 +48,7 @@ class layer_application : public layer_interface
     void read_header(stack_message& msg)
     {
         if (DEBUG) cout << "rApplication ";
+        msg.read_payload_head();
     };
 
     void read_tailer(stack_message& msg)

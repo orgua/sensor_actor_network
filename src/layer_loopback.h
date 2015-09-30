@@ -15,26 +15,27 @@ class layer_loopback : public layer_interface
     void write_header(stack_message& msg)
     {
         if (DEBUG)  cout << "tLoopback ";
-        msg.position = 0;
-        msg.payload[msg.position] = 1;
-        msg.size = ++msg.position;
+        msg.add_payload(22);
     };
 
     void write_tailer(stack_message& msg)
     {
-        // fake a new message and inform the stack
-        msg.position = 0;
+        // inform the stack
         Stack.set_received_message();
     };
 
     void read_header(stack_message& msg)
     {
         if (DEBUG)  cout << "rLoopback ";
+        // fake a fresh unread message
+        msg.reset_positions();
+        msg.read_payload_head();
     };
 
     void read_tailer(stack_message& msg)
     {
         // empty
+
     };
 
 

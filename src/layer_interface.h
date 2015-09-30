@@ -75,7 +75,7 @@ public:
 
     virtual void write_header(stack_message& msg) = 0;
     virtual void write_tailer(stack_message& msg) = 0;
-    virtual void read_header(stack_message& msg) = 0;
+    virtual void read_header(stack_message& msg) = 0;   // if this msg has a tailer, you should preallocate it in position_end ( +=tailer_size )
     virtual void read_tailer(stack_message& msg) = 0;
 
 

@@ -52,8 +52,8 @@ public:
     void write_header(stack_message& msg)
     {
         if (DEBUG) cout << "tNetwork ";
-        msg.payload[msg.position] = control.value;
-        msg.size = ++msg.position;
+        msg.add_payload(control.value);
+
         last_ID_transmitted = MAX_ID&(++control.form.msg_ID); // TODO: is this last_ID important in any way?
         if (control.form.wantsAck)      {
             mutex_ID = control.form.msg_ID;
@@ -70,7 +70,7 @@ public:
     void read_header(stack_message& msg)
     {
         if (DEBUG) cout << "rNetwork ";
-        control.value = msg.payload[msg.position++];
+        control.value = msg.read_payload_head();
         last_ID_received = control.form.msg_ID;
         if (control.form.isAck && (mutex_ID <= MAX_ID) && (mutex_ID = control.form.msg_ID))
         {
@@ -92,10 +92,11 @@ public:
     // todo: if time up resend message
     };
 
-    void config(const uint8_t wantsAck = 0, const uint8_t isAck = 0)
+    void config(const uint8_t wantsAck = 0, const uint8_t isAck = 0, const uint8_t hasData = 1)
     {
         control.form.wantsAck    = wantsAck;
         control.form.isAck       = isAck;
+        control.form.hasData     = hasData;
     };
 
 };

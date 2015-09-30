@@ -89,7 +89,8 @@ public:
 
     void write_header(stack_message& msg)
     {
-        if (DEBUG) cout << "rSession ";
+        if (DEBUG) cout << "tSession ";
+        msg.add_payload(42);
     };
 
     void write_tailer(stack_message& msg)
@@ -99,9 +100,8 @@ public:
 
     void read_header(stack_message& msg)
     {
-        if (DEBUG) cout << "tSession ";
-        msg.payload[msg.position] = 1;
-        msg.size = ++msg.position;
+        if (DEBUG) cout << "rSession ";
+        msg.read_payload_head();
     };
 
     void read_tailer(stack_message& msg)
