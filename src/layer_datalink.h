@@ -9,8 +9,6 @@
 
 #include "layer_interface.h"
 
-
-
 class layer_datalink : public layer_interface
 {
 

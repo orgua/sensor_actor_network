@@ -26,7 +26,7 @@ int main()
     Stack.add_layer(&layerApplication);
 
     uint32_t time_ms = 200; // test
-    layerNetwork.initialize(time_ms);
+    layerNetwork.initialize(&time_ms);
     time_ms = 333;
 
     stack_message msg;
@@ -34,7 +34,8 @@ int main()
 
     layerNetwork.config(1,0);
     Stack.handle_transmit(msg);
-    Stack.poll(msg);
+
+    while (Stack.poll(msg)) {};
 
     print_message(msg);
 

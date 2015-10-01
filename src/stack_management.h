@@ -82,11 +82,33 @@ public:
         has_to_transmit = 1;
     };
 
-    void poll(stack_message& msg)
+    uint8_t poll(stack_message& msg)
     {
-        if (has_pending_operations) p_layer[0]->poll(msg);
-        if (has_to_transmit)        handle_transmit(msg);
-        if (received_message)       handle_receive(msg);
+        if (received_message)
+        {
+            handle_receive(msg);
+            received_message = 0;
+            return 1;
+        }
+
+        if (has_pending_operations)
+        {
+            if (DEBUG) cout << endl << "stack_poll ";
+            for (uint8_t lvar = 0; lvar < counter_layer; ++lvar)
+            {
+                p_layer[lvar]->poll(msg);
+            };
+            return 1;
+        };
+
+        if (has_to_transmit)
+        {
+            handle_transmit(msg);
+            has_to_transmit = 0;
+            return 1;
+        };
+
+        return 0;
     };
 
     void set_has_pending_operations(void)
