@@ -25,11 +25,13 @@ typedef union
 class layer_network : public layer_interface
 {
 private:
-    uint8_t  last_ID_received, last_ID_transmitted;
-    uint8_t  mutex_ID; // ID of Packet that wants an ACK
-    uint32_t mutex_time_ms;
-    static constexpr uint32_t RETRY_MS = 1000; // TODO: make settable
-    static constexpr uint8_t  MAX_ID   = 31;
+    static constexpr uint32_t RETRY_MS      = 1000; // TODO: make settable
+    static constexpr uint8_t  MAX_ID        = 31;
+
+    uint8_t   last_ID_received, last_ID_transmitted;
+    uint8_t   mutex_ID; // ID of Packet that wants an ACK
+    uint32_t  mutex_time_ms, mutex_timeout_ms;
+    uint32_t& ref_time_ms;
 
     uint8_t header_position;
 
@@ -37,7 +39,7 @@ public:
 
     Control control; // is public, so readable from outside
 
-    layer_network()
+    layer_network() : ref_time_ms(mutex_time_ms)
     {
         control.form.wantsAck    = 0;
         control.form.isAck       = 0;
@@ -47,6 +49,7 @@ public:
         last_ID_transmitted      = 255;
         mutex_ID                 = 255;
         mutex_time_ms            = 0;
+        mutex_timeout_ms         = RETRY_MS; // standard-value
         header_position          = 0;
     };
 
@@ -61,7 +64,8 @@ public:
         last_ID_transmitted = MAX_ID&(++control.form.msg_ID); // TODO: is this last_ID important in any way?
         if (control.form.wantsAck)      {
             mutex_ID = control.form.msg_ID;
-            mutex_time_ms = 0; // TODO: include millis-timer
+            mutex_time_ms = ref_time_ms + mutex_timeout_ms; // TODO: include millis-timer
+            if (DEBUG) cout << "@t=" << mutex_time_ms << " ";
             Stack.set_has_pending_operations();
         };
     };
@@ -98,6 +102,12 @@ public:
     void poll(stack_message& msg)
     {
     // todo: if time up resend message
+    };
+
+    void initialize(const uint32_t& time_ms, const uint32_t timeout_ms = RETRY_MS) // TODO: no real reference created, maybe use shared_pointer<uint32_t>
+    {
+        ref_time_ms(time_ms);
+        mutex_timeout_ms = timeout_ms;
     };
 
     void config(const uint8_t wantsAck = 0, const uint8_t isAck = 0)

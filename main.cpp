@@ -18,16 +18,21 @@ using namespace std;
 
 int main()
 {
+
     Stack.add_layer(&layerLoopback);
     Stack.add_layer(&layerDatalink);
     Stack.add_layer(&layerNetwork);
     Stack.add_layer(&layerSession);
     Stack.add_layer(&layerApplication);
 
+    uint32_t time_ms = 200; // test
+    layerNetwork.initialize(time_ms);
+    time_ms = 333;
+
     stack_message msg;
     msg.initialize();
 
-    layerNetwork.config(0,0);
+    layerNetwork.config(1,0);
     Stack.handle_transmit(msg);
     Stack.poll(msg);
 
