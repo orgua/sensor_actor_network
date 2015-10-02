@@ -54,7 +54,7 @@ void print_message(stack_message &msg)
     {
         cout << static_cast<int>(msg.payload[ivar]) << " ";
     };
-    cout << endl;
+    //cout << endl;
 };
 
 #endif //SENSOR_ACTOR_NETWORK_STACK_MESSAGE_H

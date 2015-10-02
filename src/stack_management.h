@@ -57,6 +57,7 @@ public:
     void handle_receive(stack_message& msg)
     {
         if (DEBUG) cout << "received: ";
+        if (DEBUG) print_message(msg);
         p_layer[0]->handle_receive(msg);
         if (DEBUG) cout << endl;
 

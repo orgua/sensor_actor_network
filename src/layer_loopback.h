@@ -11,6 +11,8 @@
 
 class layer_loopback : public layer_interface
 {
+private:
+    stack_message _message;
 
     void write_header(stack_message& msg)
     {
@@ -21,12 +23,15 @@ class layer_loopback : public layer_interface
     void write_tailer(stack_message& msg)
     {
         // inform the stack
+        _message = msg;
         Stack.set_received_message();
     };
 
     void read_header(stack_message& msg)
     {
         if (DEBUG)  cout << "rLoopback ";
+
+        msg = _message;
         // fake a fresh unread message
         msg.reset_positions();
         msg.read_payload_head();

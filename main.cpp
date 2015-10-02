@@ -19,7 +19,7 @@ using namespace std;
 int main()
 {
 
-    Stack.add_layer(&layerLoopback);
+    Stack.add_layer(&layerLoopback); // TODO: need a layerTransceiveVirtual and two Stacks for real comm
     Stack.add_layer(&layerDatalink);
     Stack.add_layer(&layerNetwork);
     Stack.add_layer(&layerSession);
@@ -37,7 +37,7 @@ int main()
 
     while (Stack.poll(msg)) {};
 
-    print_message(msg);
+
 
     int * pInt;
     pInt =  reinterpret_cast<int*>(&msg); // dereference with *pInt
