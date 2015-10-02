@@ -25,11 +25,11 @@ private:
     static const uint8_t max_layer = 10;
     uint8_t counter_layer;
     layer_interface *p_layer[max_layer];
-    bool has_pending_operations, received_message, has_to_transmit;
+    bool has_pending_operations, has_to_receive, has_to_transmit;
 
 
 public:
-    stack_management() : counter_layer(0), has_pending_operations(0), received_message(0), has_to_transmit(0)
+    stack_management() : counter_layer(0), has_pending_operations(0), has_to_receive(0), has_to_transmit(0)
     { };
 
     virtual ~stack_management()
@@ -61,12 +61,12 @@ public:
         p_layer[0]->handle_receive(msg);
         if (DEBUG) cout << endl;
 
-        received_message = 0;
+        has_to_receive = 0;
     };
 
-    void set_received_message(void)
+    void set_has_to_receive(void)
     {
-        received_message = 1;
+        has_to_receive = 1;
     };
 
     void handle_transmit(stack_message& msg)
@@ -83,14 +83,21 @@ public:
         has_to_transmit = 1;
     };
 
-    uint8_t poll(stack_message& msg)
+    uint8_t poll(stack_message& msg) // TODO: make this msg part of class?
     {
-        if (received_message)
+        if (has_to_receive)
         {
             handle_receive(msg);
-            received_message = 0;
+            has_to_receive = 0;
             return 1;
         }
+
+        if (has_to_transmit)
+        {
+            handle_transmit(msg);
+            has_to_transmit = 0;
+            return 1;
+        };
 
         if (has_pending_operations)
         {
@@ -99,13 +106,6 @@ public:
             {
                 p_layer[lvar]->poll(msg);
             };
-            return 1;
-        };
-
-        if (has_to_transmit)
-        {
-            handle_transmit(msg);
-            has_to_transmit = 0;
             return 1;
         };
 

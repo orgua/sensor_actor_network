@@ -9,7 +9,7 @@
 #include "layer_interface.h"
 #include "stack_management.h"
 
-class layer_loopback : public layer_interface
+class layer_transceiveLoopback : public layer_interface
 {
 private:
     stack_message _message;
@@ -24,7 +24,7 @@ private:
     {
         // inform the stack
         _message = msg;
-        Stack.set_received_message();
+        Stack.set_has_to_receive();
     };
 
     void read_header(stack_message& msg)
@@ -51,7 +51,7 @@ private:
 
 };
 
-layer_loopback layerLoopback;
+layer_transceiveLoopback layerTransceiveLoopback;
 
 
 #endif //SENSOR_ACTOR_NETWORK_LAYER_LOOPBACK_H
