@@ -8,15 +8,19 @@
 
 #include "stack_message.h"
 
+class stack_management;
+
 class layer_interface
 {
 protected:
     layer_interface *p_upper_layer, *p_lower_layer;
     uint8_t is_top, is_bottom, go_up;
     // TODO: handle message more efficient --> static readpointer for header and tailer
+    stack_management& stack;
 
 public:
-    layer_interface() : p_upper_layer(nullptr), p_lower_layer(nullptr), is_top(1), is_bottom(1), go_up(0) {};
+    layer_interface(stack_management &_stack) : p_upper_layer(nullptr), p_lower_layer(nullptr), is_top(1), is_bottom(1), go_up(0), stack(_stack) {};
+
     ~layer_interface() {};
 
     void set_upper_layer(layer_interface *p_layer)

@@ -33,6 +33,11 @@ struct AnnounceHeader
 
 class layer_application : public layer_interface
 {
+public:
+    layer_application(stack_management &_stack) : layer_interface(_stack)
+    {
+            stack.add_layer(this);
+    };
 
     void write_header(stack_message& msg)
     {
@@ -62,8 +67,6 @@ class layer_application : public layer_interface
     };
 
 };
-
-layer_application layerApplication;
 
 
 struct SendRawData

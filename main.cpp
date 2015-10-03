@@ -18,53 +18,44 @@ using namespace std;
 
 int main()
 {
+    uint32_t time_ms = 200; // test
     // initialize virtual channel
     stack_message    channel;
 
     // initialize first Stack
-    layer_transceiveVirtual layerTransceiveVirtual(Stack, channel);
-
-    Stack.add_layer(&layerTransceiveVirtual);
-    Stack.add_layer(&layerDatalink);
-    Stack.add_layer(&layerNetwork);
-    Stack.add_layer(&layerSession);
-    Stack.add_layer(&layerApplication);
+    stack_management        stackA;
+    stack_message           msgA;
+    layer_transceiveVirtual layerTransceiveVirtualA(stackA, channel);
+    layer_datalink          layerDatalinkA(stackA);
+    layer_network           layerNetworkA(stackA,time_ms);
+    layer_session           layerSessionA(stackA);
+    layer_application       layerApplicationA(stackA);
 
     // need a layerTransceiveVirtual and two Stacks for real comm
-    stack_management Stack2;
+    stack_management        stackB;
+    stack_message           msgB;
+    layer_transceiveVirtual layerTransceiveVirtualB(stackB, channel);
+    layer_datalink          layerDatalinkB(stackB);
+    layer_network           layerNetworkB(stackB,time_ms);
+    layer_session           layerSessionB(stackB);
+    layer_application       layerApplicationB(stackB);
 
-    layer_transceiveVirtual layerTransceiveVirtual2(Stack2, channel);
-    layer_datalink          layerDatalink2;
-    layer_network           layerNetwork2;
-    layer_session           layerSession2;
-    layer_application       layerApplication2;
+    // connect the two stacks
+    layerTransceiveVirtualA.set_second_stack(&stackB);
+    layerTransceiveVirtualB.set_second_stack(&stackA);
 
-    Stack2.add_layer(&layerTransceiveVirtual2);
-    Stack2.add_layer(&layerDatalink2);
-    Stack2.add_layer(&layerNetwork2);
-    Stack2.add_layer(&layerSession2);
-    Stack2.add_layer(&layerApplication2);
+    layerNetworkA.config(1,0);
+    stackA.handle_transmit(msgA);
 
-
-
-    uint32_t time_ms = 200; // test
-    layerNetwork.initialize(&time_ms);
-    layerNetwork2.initialize(&time_ms);
-    time_ms = 333;
-
-    stack_message msg,msg2;
-    msg.initialize();
-    msg2.initialize();
-
-    layerNetwork.config(1,0);
-    Stack.handle_transmit(msg);
-
-    while (Stack.poll(msg) || Stack2.poll(msg2)) {};
-
-
+    for (uint8_t ivar = 0; ivar < 6; ++ivar)
+    {
+        time_ms++;
+        stackA.poll(msgA);
+        stackB.poll(msgB);
+    }
 
     int * pInt;
-    pInt =  reinterpret_cast<int*>(&msg); // dereference with *pInt
+    pInt =  reinterpret_cast<int*>(&msgA); // dereference with *pInt
 
     cout << "Hello world! " << *pInt << endl;
     return 0;

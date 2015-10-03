@@ -1,18 +1,25 @@
 //
 // Created by hans on 19.09.2015.
 //
-// test-layer instead of a proper physical_layer
+// DO NOT USE ANYMORE, VIRTUAL-Transceiver is more appropriate
 
 #ifndef SENSOR_ACTOR_NETWORK_LAYER_LOOPBACK_H
 #define SENSOR_ACTOR_NETWORK_LAYER_LOOPBACK_H
 
-#include "layer_interface.h"
 #include "stack_management.h"
+#include "layer_interface.h"
 
 class layer_transceiveLoopback : public layer_interface
 {
 private:
     stack_message _message;
+
+public:
+
+    layer_transceiveLoopback(stack_management &_stack) : layer_interface(_stack)
+    {
+        stack.add_layer(this);
+    };
 
     void write_header(stack_message& msg)
     {
@@ -50,8 +57,5 @@ private:
     };
 
 };
-
-layer_transceiveLoopback layerTransceiveLoopback;
-
 
 #endif //SENSOR_ACTOR_NETWORK_LAYER_LOOPBACK_H

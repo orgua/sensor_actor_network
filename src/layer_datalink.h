@@ -65,6 +65,11 @@ private:
 
 public:
 
+    layer_datalink(stack_management &_stack) : layer_interface(_stack)
+    {
+        stack.add_layer(this);
+    };
+
     void write_header(stack_message& msg)
     {
         if (DEBUG)  cout << "tDatalink ";
@@ -84,20 +89,16 @@ public:
     void read_header(stack_message& msg)
     {
         if (DEBUG)  cout << "rDatalink ";
+
+        tailer crcA, crcB;
+        crcA.form.checksumL = msg.read_payload_tail();
+        crcA.form.checksumH = msg.read_payload_tail();
+        crcB.value = crcCalculation(msg, msg.position, (msg.size - msg.position_end));
+
         msg.read_payload_head();
-        tailer crc;
-        crc.form.checksumL = msg.read_payload_tail();
-        crc.form.checksumH = msg.read_payload_tail();
 
-        if (crcCalculation(msg, header_position, (msg.size - msg.position_end)) == crc.value)
-        {
-            go_up = ~is_top;
-        }
-        else
-        {
-            go_up = 0;
-        };
-
+        if (crcA.value == crcB.value)       go_up = ~is_top;
+        else                                go_up = 0;
     };
 
     void read_tailer(stack_message& msg)
@@ -128,8 +129,6 @@ public:
     }
 
 };
-
-layer_datalink layerDatalink;
 
 constexpr uint16_t layer_datalink::FCSTAB[]; // workaround to make it known in namespace
 

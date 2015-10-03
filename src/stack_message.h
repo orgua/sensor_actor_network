@@ -10,14 +10,16 @@ struct stack_message
     uint8_t size;
     uint8_t position; // actual reading/writing position
     uint8_t position_end; // pre-allocate space for tailer
-    //uint8_t origin;
     uint8_t payload[PAYLOAD_MAX];
 
+    stack_message()
+    {
+        initialize();
+    }
 
     void initialize(void)
     {
         size   = 0;
-        //origin = 0;
         reset_positions();
     }
 

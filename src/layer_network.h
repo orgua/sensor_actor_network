@@ -31,7 +31,7 @@ private:
     uint8_t   last_ID_received, last_ID_transmitted;
     uint8_t   mutex_ID; // ID of Packet that wants an ACK
     uint32_t  mutex_time_ms, mutex_timeout_ms;
-    uint32_t* p_time_ms;
+    uint32_t& time_ms;
 
     uint8_t header_position;
     uint8_t has_unsend_data;
@@ -41,14 +41,13 @@ public:
     Control control; // is public, so readable from outside
     Control received;
 
-    layer_network()
+    layer_network(stack_management &_stack, uint32_t& _time_ms) : layer_interface(_stack), time_ms(_time_ms)
     {
         last_ID_received         = 255;
         last_ID_transmitted      = 255;
         mutex_ID                 = 255;
         mutex_time_ms            = 0;
         mutex_timeout_ms         = RETRY_MS; // standard-value
-        p_time_ms                = nullptr;
         header_position          = 0;
         has_unsend_data          = 0;
 
@@ -60,6 +59,8 @@ public:
         received.form.isAck      = 0;
         received.form.hasData    = 0;
         received.form.msg_ID     = 0;
+
+        stack.add_layer(this);
     };
 
     // TODO: handle wantsACk --> send ACK, isACk --> don't send package again
@@ -70,16 +71,16 @@ public:
         header_position = msg.position;
         msg.add_payload(0); // just a placeholder, set in tail-section
 
-        if (mutex_ID == 255)
+        if ((mutex_ID == 255) && (!control.form.isAck))
         {
             last_ID_transmitted = MAX_ID & (++control.form.msg_ID); // TODO: is this last_ID important in any way?
         };
         if (control.form.wantsAck)
         {
             mutex_ID = control.form.msg_ID;
-            mutex_time_ms = *(p_time_ms) + mutex_timeout_ms; // use time from millis-timer
-            Stack.set_has_pending_operations();
-            if (DEBUG) cout << "setMutex";
+            mutex_time_ms = time_ms + mutex_timeout_ms; // use time from millis-timer
+            stack.set_has_pending_operations();
+            if (DEBUG) cout << "setMutex(" << static_cast<int>(control.form.msg_ID) << ")";
             if (DEBUG) cout << "@t=" << mutex_time_ms << " ";
         };
     };
@@ -105,7 +106,7 @@ public:
             if (DEBUG) cout << "clearMutex ";
             mutex_ID = 255;     // clear mutex
             mutex_time_ms = 0;
-            Stack.clear_has_pending_operations();  // remove flag for pending operations
+            stack.clear_has_pending_operations();  // remove flag for pending operations
         };
 
         if (received.form.hasData)  go_up = ~is_top; // if not last layer, goto next
@@ -113,12 +114,12 @@ public:
 
         if (received.form.wantsAck)
         {
-            if (DEBUG) cout << "scheduleACK ";
+            if (DEBUG) cout << "scheduleACK(" << static_cast<int>(received.form.msg_ID) << ") ";
             control.form.wantsAck   = 0;
             control.form.isAck      = 1;
             control.form.msg_ID     = received.form.msg_ID;
             has_unsend_data         = 1;
-            Stack.set_has_pending_operations();
+            stack.set_has_pending_operations();
         };
     };
 
@@ -130,10 +131,10 @@ public:
     void poll(stack_message& msg)
     {
         // todo: if time up resend message
-        if (mutex_ID && (mutex_time_ms <= *p_time_ms))
+        if ((mutex_ID <= MAX_ID) && (mutex_time_ms <= time_ms))
         {
             if (DEBUG) cout << "retransmit ";
-            Stack.handle_transmit(msg);
+            stack.handle_transmit(msg);
             return;
         };
         // if wants ack, send ack
@@ -143,13 +144,12 @@ public:
             stack_message _msg;
             _msg.initialize();
             has_unsend_data         = 0;
-            Stack.handle_transmit(_msg);
+            stack.handle_transmit(_msg);
         }
     };
 
-    void initialize(uint32_t* time_ms, const uint32_t timeout_ms = RETRY_MS) // TODO: reference is const when created, maybe use shared_pointer<uint32_t> or init with class
+    void set_timeout(const uint32_t timeout_ms = RETRY_MS) // TODO: reference is const when created, maybe use shared_pointer<uint32_t> or init with class
     {
-        p_time_ms           = time_ms;
         mutex_timeout_ms    = timeout_ms;
     };
 
@@ -160,7 +160,5 @@ public:
     };
 
 };
-
-layer_network layerNetwork;
 
 #endif //SENSOR_ACTOR_NETWORK_LAYER_NETWORK_H

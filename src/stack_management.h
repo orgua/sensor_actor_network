@@ -17,7 +17,6 @@ enum class placement : uint8_t
     top, bottom, above, below
 };
 
-
 class stack_management
 {
 private:
@@ -26,7 +25,6 @@ private:
     uint8_t counter_layer;
     layer_interface *p_layer[max_layer];
     bool has_pending_operations, has_to_receive, has_to_transmit;
-
 
 public:
     stack_management() : counter_layer(0), has_pending_operations(0), has_to_receive(0), has_to_transmit(0)
@@ -87,6 +85,7 @@ public:
     {
         if (has_to_receive)
         {
+            if (DEBUG) cout << endl << "hasToReceive ";
             handle_receive(msg);
             has_to_receive = 0;
             return 1;
@@ -94,6 +93,7 @@ public:
 
         if (has_to_transmit)
         {
+            if (DEBUG) cout << endl << " hasToTransmit ";
             handle_transmit(msg);
             has_to_transmit = 0;
             return 1;
@@ -123,7 +123,5 @@ public:
     }
 
 };
-
-stack_management Stack;
 
 #endif //SENSOR_ACTOR_NETWORK_STACK_MANAGEMENT_H

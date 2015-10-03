@@ -82,9 +82,10 @@ class layer_session : public layer_interface
 private:
     session_status status;
 public:
-    layer_session(void)
+    layer_session(stack_management &_stack) : layer_interface(_stack)
     {
         status = session_status::unregistered;
+        stack.add_layer(this);
     }
 
     void write_header(stack_message& msg)
@@ -119,7 +120,5 @@ public:
         return status;
     };
 };
-
-layer_session layerSession;
 
 #endif //SENSOR_ACTOR_NETWORK_LAYER_SESSION_H
