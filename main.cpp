@@ -54,9 +54,9 @@ int main()
     {
         time_ms++;
         stackA.poll(msgA);
-        if (ivar < 1200) channel.initialize(); // fake a lost message
+        //if (ivar < 1200) channel.initialize(); // fake lost messages
         stackB.poll(msgB);
-        if (ivar < 1200) channel.initialize(); // fake a lost message
+        if (ivar < 1200) channel.initialize(); // fake lost messages
     }
 
     cout << endl;
