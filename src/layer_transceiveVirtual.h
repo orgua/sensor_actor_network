@@ -27,7 +27,7 @@ public:
 
     void write_header(stack_message& msg)
     {
-        if (DEBUG)  cout << "tVirtual ";
+        if (DEBUG<=1)  cout << "tVirtual ";
         msg.add_payload(22);
     };
 
@@ -37,12 +37,12 @@ public:
         channel = msg;
         has_send_data = 1;
         stackB->set_has_pending_operations();
-        if (DEBUG)  cout << "MsgSend ";
+        if (DEBUG<=11)  cout << "MsgTransmit ";
     };
 
     void read_header(stack_message& msg)
     {
-        if (DEBUG)  cout << "rVirtual ";
+        if (DEBUG<=1)  cout << "rVirtual ";
 
         // fake a fresh unread message
         msg.reset_positions();
@@ -59,14 +59,14 @@ public:
     {
         if (has_send_data && (!channel.size))
         {
-            if (DEBUG)  cout << "MsgReadAck ";
+            if (DEBUG<=11)  cout << "MsgSent ";
             has_send_data = 0;
             return;
         }
 
         if ((!has_send_data) && (channel.size))
         {
-            if (DEBUG)  cout << "MsgRead ";
+            if (DEBUG<=11)  cout << "MsgReceived ";
             msg = channel;
             channel.initialize();
             if (stackB != nullptr)  stackB->set_has_pending_operations();

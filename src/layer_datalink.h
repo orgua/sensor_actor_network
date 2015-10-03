@@ -72,7 +72,7 @@ public:
 
     void write_header(stack_message& msg)
     {
-        if (DEBUG)  cout << "tDatalink ";
+        if (DEBUG<=1)  cout << "tDatalink ";
         header_position = msg.position;
         msg.add_payload(123);
     };
@@ -88,7 +88,7 @@ public:
 
     void read_header(stack_message& msg)
     {
-        if (DEBUG)  cout << "rDatalink ";
+        if (DEBUG<=1)  cout << "rDatalink ";
 
         tailer crcA, crcB;
         crcA.form.checksumL = msg.read_payload_tail();

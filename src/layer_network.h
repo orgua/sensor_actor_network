@@ -29,7 +29,7 @@ private:
     static constexpr uint8_t  MAX_ID        = 31;
 
     uint8_t   last_ID_received, last_ID_transmitted;
-    uint8_t   mutex_ID; // ID of Packet that wants an ACK
+    uint8_t   mutex_ID; // ID of packet that wants an ACK
     uint32_t  mutex_time_ms, mutex_timeout_ms;
     uint32_t& time_ms;
 
@@ -67,7 +67,7 @@ public:
 
     void write_header(stack_message& msg)
     {
-        if (DEBUG) cout << "tNetwork ";
+        if (DEBUG<=1) cout << "tNetwork ";
         header_position = msg.position;
         msg.add_payload(0); // just a placeholder, set in tail-section
 
@@ -80,8 +80,8 @@ public:
             mutex_ID = control.form.msg_ID;
             mutex_time_ms = time_ms + mutex_timeout_ms; // use time from millis-timer
             stack.set_has_pending_operations();
-            if (DEBUG) cout << "setMutex(" << static_cast<int>(control.form.msg_ID) << ")";
-            if (DEBUG) cout << "@t=" << mutex_time_ms << " ";
+            if (DEBUG<=13) cout << "setMutex(" << static_cast<int>(control.form.msg_ID) << ")";
+            if (DEBUG<=13) cout << "@t=" << time_ms << " ";
         };
     };
 
@@ -97,13 +97,14 @@ public:
 
     void read_header(stack_message& msg)
     {
-        if (DEBUG) cout << "rNetwork ";
+        if (DEBUG<=1) cout << "rNetwork ";
         received.value = msg.read_payload_head();
         last_ID_received = received.form.msg_ID;
 
         if (received.form.isAck && (mutex_ID <= MAX_ID) && (mutex_ID == received.form.msg_ID))
         {
-            if (DEBUG) cout << "clearMutex ";
+            if (DEBUG<=13) cout << "clearMutex ";
+            if (DEBUG<=13) cout << "@t=" << time_ms << " ";
             mutex_ID = 255;     // clear mutex
             mutex_time_ms = 0;
             stack.clear_has_pending_operations();  // remove flag for pending operations
@@ -114,7 +115,7 @@ public:
 
         if (received.form.wantsAck)
         {
-            if (DEBUG) cout << "scheduleACK(" << static_cast<int>(received.form.msg_ID) << ") ";
+            if (DEBUG<=13) cout << "scheduleACK(" << static_cast<int>(received.form.msg_ID) << ") ";
             control.form.wantsAck   = 0;
             control.form.isAck      = 1;
             control.form.msg_ID     = received.form.msg_ID;
@@ -133,14 +134,15 @@ public:
         // todo: if time up resend message
         if ((mutex_ID <= MAX_ID) && (mutex_time_ms <= time_ms))
         {
-            if (DEBUG) cout << "retransmit ";
-            stack.handle_transmit(msg);
+            if (DEBUG<=13) cout << endl << "retransmit ";
+            msg.initialize();
+            stack.set_has_to_transmit(); //handle_transmit(msg); // todo: something wrong here, should copy message and there should be no "initialize" needed
             return;
         };
         // if wants ack, send ack
         if (control.form.isAck && has_unsend_data)
         {
-            if (DEBUG) cout << "sendACK ";
+            if (DEBUG<=13) cout << "sendACK ";
             stack_message _msg;
             _msg.initialize();
             has_unsend_data         = 0;

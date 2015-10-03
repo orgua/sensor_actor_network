@@ -72,7 +72,7 @@ public:
 
     void handle_receive(stack_message& msg)
     {
-        if (DEBUG)  cout << endl << "   ";
+        if (DEBUG<=10)  cout << endl << "   ";
         read_header(msg);
         if (go_up) p_upper_layer->handle_receive(msg);
         read_tailer(msg);
@@ -80,7 +80,7 @@ public:
 
     void handle_transmit(stack_message& msg)
     {
-        if (DEBUG)  cout << endl << "   ";
+        if (DEBUG<=10)  cout << endl << "   ";
         write_header(msg);
         if (go_up) p_upper_layer->handle_transmit(msg);
         write_tailer(msg);

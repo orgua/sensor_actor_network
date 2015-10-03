@@ -12,12 +12,9 @@ set(SOURCE_FILES
         src/layer_datalink.h
         src/layer_session.h
         src/layer_network.h
-        src/layer_transceiveLoopback.h
         src/stack_management.h
-
         )
 
 add_executable(sensor_actor_network ${SOURCE_FILES}
         src/layer_interface.h
-        src/layer_transceiveLoopback.h
         src/stack_management.h)

@@ -5,7 +5,7 @@
 #ifndef SENSOR_ACTOR_NETWORK_STACK_MANAGEMENT_H
 #define SENSOR_ACTOR_NETWORK_STACK_MANAGEMENT_H
 
-constexpr uint8_t DEBUG = 1;
+
 
 #include <stdint-gcc.h>
 #include "stack_message.h"
@@ -54,10 +54,10 @@ public:
 
     void handle_receive(stack_message& msg)
     {
-        if (DEBUG) cout << "received: ";
-        if (DEBUG) print_message(msg);
+        if (DEBUG<=2) cout << "received: ";
+        if (DEBUG<=2) print_message(msg);
         p_layer[0]->handle_receive(msg);
-        if (DEBUG) cout << endl;
+        if (DEBUG<=2) cout << endl;
 
         has_to_receive = 0;
     };
@@ -69,9 +69,9 @@ public:
 
     void handle_transmit(stack_message& msg)
     {
-        if (DEBUG) cout << "transmit: ";
+        if (DEBUG<=3) cout << "transmit: ";
         p_layer[0]->handle_transmit(msg);
-        if (DEBUG) cout << endl;
+        if (DEBUG<=3) cout << endl;
 
         has_to_transmit = 0;
     };
@@ -85,23 +85,23 @@ public:
     {
         if (has_to_receive)
         {
-            if (DEBUG) cout << endl << "hasToReceive ";
-            handle_receive(msg);
+            if (DEBUG<=4) cout << endl << "hasToReceive ";
             has_to_receive = 0;
+            handle_receive(msg);
             return 1;
         }
 
         if (has_to_transmit)
         {
-            if (DEBUG) cout << endl << " hasToTransmit ";
-            handle_transmit(msg);
+            if (DEBUG<=4) cout << endl << " hasToTransmit ";
             has_to_transmit = 0;
+            handle_transmit(msg);
             return 1;
         };
 
         if (has_pending_operations)
         {
-            if (DEBUG) cout << endl << "stack_poll ";
+            if (DEBUG<=4) cout << endl << "stack_poll ";
             for (uint8_t lvar = 0; lvar < counter_layer; ++lvar)
             {
                 p_layer[lvar]->poll(msg);
@@ -120,7 +120,7 @@ public:
     void clear_has_pending_operations(void)
     {
         has_pending_operations = 0;
-    }
+    };
 
 };
 

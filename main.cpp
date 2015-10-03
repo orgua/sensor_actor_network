@@ -8,6 +8,8 @@
 
 using namespace std;
 
+constexpr uint8_t DEBUG = 11;
+
 #include "src/stack_management.h"
 #include "src/layer_transceiveVirtual.h"
 #include "src/layer_datalink.h"     // CRC
@@ -18,7 +20,8 @@ using namespace std;
 
 int main()
 {
-    uint32_t time_ms = 200; // test
+    uint32_t time_ms = 0; // test
+
     // initialize virtual channel
     stack_message    channel;
 
@@ -47,12 +50,16 @@ int main()
     layerNetworkA.config(1,0);
     stackA.handle_transmit(msgA);
 
-    for (uint8_t ivar = 0; ivar < 6; ++ivar)
+    for (uint16_t ivar = 0; ivar < 3040; ++ivar)
     {
         time_ms++;
         stackA.poll(msgA);
+        if (ivar < 1200) channel.initialize(); // fake a lost message
         stackB.poll(msgB);
+        if (ivar < 1200) channel.initialize(); // fake a lost message
     }
+
+    cout << endl;
 
     int * pInt;
     pInt =  reinterpret_cast<int*>(&msgA); // dereference with *pInt

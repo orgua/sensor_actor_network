@@ -54,12 +54,12 @@ struct stack_message
 
 void print_message(stack_message &msg)
 {
+    if (DEBUG>=100) return;
     cout << "Got " << static_cast<int>(msg.size) << " Byte: ";
     for (uint8_t ivar = 0; ivar < msg.size; ++ivar)
     {
         cout << static_cast<int>(msg.payload[ivar]) << " ";
     };
-    //cout << endl;
 };
 
 #endif //SENSOR_ACTOR_NETWORK_STACK_MESSAGE_H

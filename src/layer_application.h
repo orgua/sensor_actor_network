@@ -41,7 +41,7 @@ public:
 
     void write_header(stack_message& msg)
     {
-        if (DEBUG) cout << "tApplication ";
+        if (DEBUG<=1) cout << "tApplication ";
         msg.add_payload(77);
     };
 
@@ -52,7 +52,7 @@ public:
 
     void read_header(stack_message& msg)
     {
-        if (DEBUG) cout << "rApplication ";
+        if (DEBUG<=1) cout << "rApplication ";
         msg.read_payload_head();
     };
 
