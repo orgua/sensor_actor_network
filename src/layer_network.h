@@ -110,7 +110,7 @@ public:
             stack.clear_has_pending_operations();  // remove flag for pending operations
         };
 
-        if (received.form.hasData)  go_up = ~is_top; // if not last layer, goto next
+        if (received.form.hasData)  go_up = !is_top; // if not last layer, goto next
         else                        go_up = 0;       // prevent next layer
 
         if (received.form.wantsAck)
@@ -134,9 +134,11 @@ public:
         // todo: if time up resend message
         if ((mutex_ID <= MAX_ID) && (mutex_time_ms <= time_ms))
         {
-            if (DEBUG<=13) cout << endl << "retransmit ";
-            msg.initialize();
-            stack.set_has_to_transmit(); //handle_transmit(msg); // todo: something wrong here, should copy message and there should be no "initialize" needed
+            if (DEBUG<=13) cout << endl << "retransmit";
+            if (DEBUG<=13) cout << "@t=" << time_ms << " ";
+            mutex_time_ms = time_ms + mutex_timeout_ms; // use time from millis-timer
+            msg.reset_positions(); //initialize();
+            stack.handle_transmit(msg); // todo: something wrong here, should copy message and there should be no "initialize" needed, but otherwise the mutex-time is not reset
             return;
         };
         // if wants ack, send ack

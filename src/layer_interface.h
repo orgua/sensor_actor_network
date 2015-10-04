@@ -76,6 +76,7 @@ public:
         read_header(msg);
         if (go_up) p_upper_layer->handle_receive(msg);
         read_tailer(msg);
+        go_up = !is_top;
     };
 
     void handle_transmit(stack_message& msg)
@@ -84,6 +85,7 @@ public:
         write_header(msg);
         if (go_up) p_upper_layer->handle_transmit(msg);
         write_tailer(msg);
+        go_up = !is_top;
    };
 
     // layer_specific functions --> declare your own
@@ -92,9 +94,6 @@ public:
     virtual void write_tailer(stack_message& msg) = 0;
     virtual void read_header(stack_message& msg) = 0;   // if this msg has a tailer, you should preallocate it in position_end ( +=tailer_size )
     virtual void read_tailer(stack_message& msg) = 0;
-
-
-    // TODO: we need something like: maintenance or poll to care for undone tasks
 
     // TODO: make it possible to send message directly from layer (transmit(), handle_transmit())
     //  transmit --> if no top layer then work down, otherwise go up and call transmit

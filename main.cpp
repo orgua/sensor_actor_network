@@ -47,19 +47,22 @@ int main()
     layerTransceiveVirtualA.set_second_stack(&stackB);
     layerTransceiveVirtualB.set_second_stack(&stackA);
 
+    // TEST1: first disturb both com-directions, then only the backchannel
     layerNetworkA.config(1,0);
     stackA.handle_transmit(msgA);
 
-    for (uint16_t ivar = 0; ivar < 3040; ++ivar)
+    for (uint16_t ivar = 0; ivar < 4040; ++ivar)
     {
         time_ms++;
         stackA.poll(msgA);
-        //if (ivar < 1200) channel.initialize(); // fake lost messages
-        stackB.poll(msgB);
         if (ivar < 1200) channel.initialize(); // fake lost messages
+        stackB.poll(msgB);
+        if (ivar < 2200) channel.initialize(); // fake lost messages
     }
-
     cout << endl;
+
+    // TEST2:
+
 
     int * pInt;
     pInt =  reinterpret_cast<int*>(&msgA); // dereference with *pInt

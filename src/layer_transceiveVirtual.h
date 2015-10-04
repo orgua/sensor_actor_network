@@ -28,6 +28,13 @@ public:
     void write_header(stack_message& msg)
     {
         if (DEBUG<=1)  cout << "tVirtual ";
+        if (msg.size)
+        {
+            if (DEBUG <= 11) cout << "bypassStack ";
+            go_up = 0;       // prevent next layer, will be restored
+            return;
+        }
+        else   go_up = !is_top; // if not last layer, goto next
         msg.add_payload(22);
     };
 
@@ -36,6 +43,7 @@ public:
         // inform the stack
         channel = msg;
         has_send_data = 1;
+        stack.set_has_pending_operations();
         stackB->set_has_pending_operations();
         if (DEBUG<=11)  cout << "MsgTransmit ";
     };

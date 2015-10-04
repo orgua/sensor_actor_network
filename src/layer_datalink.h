@@ -97,8 +97,8 @@ public:
 
         msg.read_payload_head();
 
-        if (crcA.value == crcB.value)       go_up = ~is_top;
-        else                                go_up = 0;
+        if (crcA.value == crcB.value)       go_up = !is_top;
+        else                                go_up = 0;  // will be restored
     };
 
     void read_tailer(stack_message& msg)
